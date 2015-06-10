@@ -1,3 +1,7 @@
 'use strict'
 
-module.exports = require('require-directory')(module)
+module.exports = {
+	"info": require('./info.js'),
+	"cohttp": require('./cohttp.js')
+}
+

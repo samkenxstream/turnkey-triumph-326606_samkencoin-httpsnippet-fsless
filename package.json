@@ -1,9 +1,9 @@
 {
-  "version": "1.16.0",
-  "name": "httpsnippet",
-  "description": "HTTP Request snippet generator for *most* languages",
-  "author": "Ahmad Nassri <ahmad@mashape.com> (https://www.mashape.com/)",
-  "homepage": "https://github.com/Mashape/httpsnippet",
+  "version": "1.16.9",
+  "name": "httpsnippet-fsless",
+  "description": "HTTP Request snippet generator for *most* languages without using node-fs",
+  "author": "Abhijit Kane, abhijit@getpostman.com",
+  "homepage": "https://github.com/postmanlabs/httpsnippet",
   "license": "MIT",
   "main": "./src/index.js",
   "bin": "./bin/httpsnippet",
@@ -43,10 +43,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Mashape/httpsnippet"
+    "url": "https://github.com/postmanlabs/httpsnippet"
   },
   "bugs": {
-    "url": "https://github.com/Mashape/httpsnippet/issues"
+    "url": "https://github.com/postmanlabs/httpsnippet/issues"
   },
   "scripts": {
     "test": "standard && mocha --no-timeouts --reporter spec --fgrep 'Request Validation' --invert",
@@ -73,8 +73,8 @@
     "commander": "^2.7.1",
     "debug": "^2.1.3",
     "event-stream": "^3.3.0",
+    "folderify": "^0.6.0",
     "form-data": "^0.2.0",
-    "har-validator": "^1.5.1",
-    "require-directory": "^2.1.0"
+    "har-validator-fsless": "^1.6.1"
   }
 }

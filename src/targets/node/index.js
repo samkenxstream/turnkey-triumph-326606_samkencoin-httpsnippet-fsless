@@ -1,3 +1,8 @@
 'use strict'
 
-module.exports = require('require-directory')(module)
+module.exports = {
+	"info": require('./info.js'),
+	"native": require('./native.js'),
+	"request": require('./request.js'),
+	"unirest": require('./unirest.js')
+}

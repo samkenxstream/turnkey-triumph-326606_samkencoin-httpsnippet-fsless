@@ -8,7 +8,7 @@ var helpers = require('./helpers')
 var targets = require('./targets')
 var url = require('url')
 var util = require('util')
-var validate = require('har-validator')
+var validate = require('har-validator-fsless')
 
 // constructor
 var HTTPSnippet = function (data, lang) {

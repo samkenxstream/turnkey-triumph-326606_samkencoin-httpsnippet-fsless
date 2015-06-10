@@ -1,3 +1,7 @@
 'use strict'
 
-module.exports = require('require-directory')(module)
+module.exports = {
+	"info": require('./info.js'),
+	"helpers": require('./helpers.js'),
+	"nsurlsession": require('./nsurlsession.js')
+}
