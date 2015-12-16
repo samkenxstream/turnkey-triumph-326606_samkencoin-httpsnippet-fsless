@@ -46,7 +46,9 @@ module.exports = {
    */
   literalRepresentation: function (value, indentation) {
     var join = indentation === undefined ? ', ' : ',\n   ' + this.blankString(indentation)
-
+    if(!value) {
+      value = ""; //to avoid calling .replace on undefined
+    }
     switch (Object.prototype.toString.call(value)) {
       case '[object Number]':
         return '@' + value
