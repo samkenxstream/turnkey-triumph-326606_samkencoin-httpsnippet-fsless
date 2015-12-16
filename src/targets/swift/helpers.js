@@ -50,7 +50,10 @@ module.exports = {
    */
   literalRepresentation: function (value, opts, indentLevel) {
     indentLevel = indentLevel === undefined ? 1 : indentLevel + 1
-
+    if(!value) {
+      value = ""; //to avoid calling .replace on undefined
+    }
+    
     switch (Object.prototype.toString.call(value)) {
       case '[object Number]':
         return value
