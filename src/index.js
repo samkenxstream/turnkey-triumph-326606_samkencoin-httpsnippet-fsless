@@ -108,7 +108,7 @@ HTTPSnippet.prototype.prepare = function (request) {
         var form = new MultiPartForm()
 
         // easter egg
-        form._boundary = '---011000010111000001101001'
+        form._boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
 
         request.postData.params.map(function (param) {
           form.append(param.name, param.value || '', {
