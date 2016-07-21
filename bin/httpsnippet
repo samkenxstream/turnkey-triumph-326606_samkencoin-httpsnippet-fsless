@@ -2,12 +2,12 @@
 
 'use strict'
 
-var async = require('async')
 var chalk = require('chalk')
 var cmd = require('commander')
-var debug = require('debug')('httpsnippet')
 var fs = require('fs')
-var HTTPSnippet = require('../src')
+var readFile = require('fs-readfile-promise')
+var writeFile = require('fs-writefile-promise')
+var HTTPSnippet = require('..')
 var path = require('path')
 var pkg = require('../package.json')
 
@@ -17,7 +17,6 @@ cmd
   .option('-t, --target <target>', 'target output')
   .option('-c, --client [client]', 'target client library')
   .option('-o, --output <directory>', 'write output to directory')
-  .option('-n, --output-name <name>', 'output file name')
   .parse(process.argv)
 
 if (!cmd.args.length || !cmd.target) {
@@ -32,94 +31,50 @@ if (cmd.output) {
   }
 }
 
-async.waterfall([
-  function isFile (next) {
-    var iterator = function (item, cb) {
-      cb(fs.statSync(item).isFile())
-    }
+cmd.args.forEach(function (fileName) {
+  var file = path.basename(fileName)
 
-    async.filter(cmd.args, iterator, function (results) {
-      next(null, results)
+  readFile(fileName)
+    .then(JSON.parse)
+
+    .catch(function (e) {
+      console.error('%s %s failed to read JSON: %s', chalk.red('✖'), chalk.cyan.bold(file), chalk.red(e.message))
     })
-  },
 
-  function read (files, next) {
-    var iterator = function (file, cb) {
-      fs.readFile(file, cb)
-    }
-
-    async.map(files, iterator, function (err, results) {
-      next(err, files, results)
+    .then(function (data) {
+      return new HTTPSnippet(data)
     })
-  },
 
-  function parse (files, buffers, next) {
-    var iterator = function (buffer, cb) {
-      try {
-        cb(null, JSON.parse(buffer))
-      } catch (e) {
-        debug('failed to parse source json')
-        cb('failed to parse source json', null)
-      }
-    }
-
-    async.map(buffers, iterator, function (err, results) {
-      next(err, files, results)
+    .catch(function (e) {
+      e.errors.forEach(function (err) {
+        console.error('%s %s failed validation: (%s: %s) %s', chalk.red('✖'), chalk.cyan.bold(file), chalk.cyan.italic(err.field), chalk.magenta.italic(err.value), chalk.red(err.message))
+      })
     })
-  },
 
-  function snippet (files, sources, next) {
-    var iterator = function (source, cb) {
-      var snippet
+    .then(function (snippet) {
+      return snippet.convert(cmd.target, cmd.client)
+    })
 
-      try {
-        snippet = new HTTPSnippet(source)
-      } catch (e) {
-        debug(e)
-
-        return cb(!e[0] ? 'invalid input' : (e[0].field + ' ' + e[0].message), null)
+    .then(function (output) {
+      // print
+      if (!cmd.output) {
+        return console.log('%s %s > %s [%s] :\n%s', chalk.green('✓'), chalk.cyan.bold(file), chalk.yellow(cmd.target), chalk.yellow(cmd.client ? cmd.client : 'default'), output)
       }
 
-      cb(null, snippet.convert(cmd.target, cmd.client))
-    }
+      // write to file
+      var name = path.basename(file, path.extname(file))
 
-    async.map(sources, iterator, function (err, results) {
-      next(err, files, results)
+      var filename = path.format({
+        dir: dir,
+        base: name + HTTPSnippet.extname(cmd.target)
+      })
+
+      return writeFile(filename, output + '\n', function () {
+        console.log('%s %s > %s', chalk.green('✓'), chalk.cyan.bold(file), filename)
+      })
     })
-  },
 
-  function writeOutput (files, snippets, next) {
-    if (cmd.output) {
-      var iterator = function (file) {
-        var index = files.indexOf(file)
-        var name = path.basename(file, path.extname(file))
-
-        var filename = path.format({
-          dir: dir,
-          base: name + HTTPSnippet.extname(cmd.target)
-        })
-
-        fs.writeFile(filename, snippets[index] + '\n')
-      }
-
-      async.each(files, iterator)
-    }
-
-    next(null, files, snippets)
-  },
-
-  function log (files, snippets, next) {
-    if (!cmd.output) {
-      var iterator = function (file) {
-        var index = files.indexOf(file)
-        console.log('%s:\n%s\n', chalk.cyan.bold.underline(file), snippets[index])
-      }
-
-      async.each(files, iterator)
-    }
-  }
-], function (err, result) {
-    if (err) {
-      console.log('%s: %s', chalk.red.bold('ERROR'), err)
-    }
-  })
+    .catch(function (e) {
+      console.error('%s %s fail: %s', chalk.red('✖'), chalk.cyan.bold(file), chalk.red(e.message))
+    })
+})
