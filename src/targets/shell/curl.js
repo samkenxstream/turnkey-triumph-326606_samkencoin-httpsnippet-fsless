@@ -17,7 +17,8 @@ var CodeBuilder = require('../../helpers/code-builder')
 module.exports = function (source, options) {
   var opts = util._extend({
     indent: '  ',
-    short: false
+    short: false,
+    binary: false
   }, options)
 
   var code = new CodeBuilder(opts.indent, opts.indent !== false ? ' \\\n' + opts.indent : ' ')
@@ -30,7 +31,7 @@ module.exports = function (source, options) {
   }
 
   // construct headers
-  Object.keys(source.headersObj).sort().map(function (key) {
+  Object.keys(source.headersObj).sort().forEach(function (key) {
     var header = util.format('%s: %s', key, source.headersObj[key])
     code.push('%s %s', opts.short ? '-H' : '--header', helpers.quote(header))
   })
@@ -56,7 +57,10 @@ module.exports = function (source, options) {
     default:
       // raw request body
       if (source.postData.text) {
-        code.push('%s %s', opts.short ? '-d' : '--data', helpers.escape(helpers.quote(source.postData.text)))
+        code.push(
+          '%s %s', opts.binary ? '--data-binary' : (opts.short ? '-d' : '--data'),
+          helpers.escape(helpers.quote(source.postData.text))
+        )
       }
   }
 

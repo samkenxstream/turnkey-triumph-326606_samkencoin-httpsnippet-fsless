@@ -11,7 +11,7 @@
 'use strict'
 
 var util = require('util')
-var helpers = require('../../helpers/shell')
+var shell = require('../../helpers/shell')
 var CodeBuilder = require('../../helpers/code-builder')
 
 module.exports = function (source, options) {
@@ -75,22 +75,22 @@ module.exports = function (source, options) {
   if (opts.queryParams) {
     var queryStringKeys = Object.keys(source.queryObj)
 
-    queryStringKeys.map(function (name) {
+    queryStringKeys.forEach(function (name) {
       var value = source.queryObj[name]
 
       if (util.isArray(value)) {
-        value.map(function (val) {
-          code.push('%s==%s', name, helpers.quote(val))
+        value.forEach(function (val) {
+          code.push('%s==%s', name, shell.quote(val))
         })
       } else {
-        code.push('%s==%s', name, helpers.quote(value))
+        code.push('%s==%s', name, shell.quote(value))
       }
     })
   }
 
   // construct headers
-  Object.keys(source.allHeaders).sort().map(function (key) {
-    code.push('%s:%s', key, helpers.quote(source.allHeaders[key]))
+  Object.keys(source.allHeaders).sort().forEach(function (key) {
+    code.push('%s:%s', key, shell.quote(source.allHeaders[key]))
   })
 
   if (source.postData.mimeType === 'application/x-www-form-urlencoded') {
@@ -98,18 +98,18 @@ module.exports = function (source, options) {
     if (source.postData.params && source.postData.params.length) {
       flags.push(opts.short ? '-f' : '--form')
 
-      source.postData.params.map(function (param) {
-        code.push('%s=%s', param.name, helpers.quote(param.value))
+      source.postData.params.forEach(function (param) {
+        code.push('%s=%s', param.name, shell.quote(param.value))
       })
     }
   } else {
     raw = true
   }
 
-  code.unshift('http %s%s %s', flags.length ? flags.join(' ') + ' ' : '', source.method, helpers.quote(opts.queryParams ? source.url : source.fullUrl))
+  code.unshift('http %s%s %s', flags.length ? flags.join(' ') + ' ' : '', source.method, shell.quote(opts.queryParams ? source.url : source.fullUrl))
 
   if (raw && source.postData.text) {
-    code.unshift('echo %s | ', helpers.quote(source.postData.text))
+    code.unshift('echo %s | ', shell.quote(source.postData.text))
   }
 
   return code.join()
