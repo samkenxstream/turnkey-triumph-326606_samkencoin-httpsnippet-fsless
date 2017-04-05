@@ -56,7 +56,8 @@ module.exports = function (source, options) {
     default:
       // raw request body
       if (source.postData.text) {
-        code.push('%s %s', opts.short ? '-d' : '--data', helpers.escape(helpers.quote(source.postData.text)))
+        var postData = helpers.quote(source.postData.text);
+        code.push('%s %s', opts.short ? '-d' : '--data', options.escape ? helpers.escape(postData) : postData)
       }
   }
 
