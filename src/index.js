@@ -9,6 +9,7 @@ var targets = require('./targets')
 var Url = require('postman-collection').Url
 var util = require('util')
 var validate = require('har-validator-fsless')
+var QueryParam = require('postman-collection').QueryParam
 
 // constructor
 var HTTPSnippet = function (data, lang) {
@@ -166,7 +167,7 @@ HTTPSnippet.prototype.prepare = function (request) {
   request.uriObj.hostname = request.uriObj.host
 
   // merge all possible queryString values
-  request.queryObj = util._extend(request.queryObj, request.uriObj.query.toObject());
+  request.queryObj = util._extend(request.queryObj, request.uriObj.query.toObject())
   request.hashValue = request.uriObj.hash
 
   // reset uriObj query values for a clean url
@@ -178,13 +179,10 @@ HTTPSnippet.prototype.prepare = function (request) {
 
   // update the uri object with query params if any
   if (Object.keys(request.queryObj).length) {
-    request.uriObj.addQueryParams(Object.keys(request.queryObj).reduce(function (acc, key) {
-      acc.push({key: key, value: request.queryObj[key]});
-      return acc;
-    }, []));
+    request.uriObj.addQueryParams(QueryParam.unparse(request.queryObj))
   }
 
-  request.hashValue && (request.uriObj.hash = request.hashValue);
+  request.hashValue && (request.uriObj.hash = request.hashValue)
 
   // construct a full url
   request.fullUrl = request.uriObj.toString()
