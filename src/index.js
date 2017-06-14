@@ -6,9 +6,10 @@ var MultiPartForm = require('form-data')
 var qs = require('querystring')
 var helpers = require('./helpers')
 var targets = require('./targets')
-var url = require('url')
+var Url = require('postman-collection').Url
 var util = require('util')
 var validate = require('har-validator-fsless')
+var QueryParam = require('postman-collection').QueryParam
 
 // constructor
 var HTTPSnippet = function (data, lang) {
@@ -161,29 +162,30 @@ HTTPSnippet.prototype.prepare = function (request) {
   request.allHeaders = util._extend(request.allHeaders, request.headersObj)
 
   // deconstruct the uri
-  request.uriObj = url.parse(request.url, true, true)
+  request.uriObj = new Url(request.url)
+
+  request.uriObj.hostname = request.uriObj.host
 
   // merge all possible queryString values
-  request.queryObj = util._extend(request.queryObj, request.uriObj.query)
+  request.queryObj = util._extend(request.queryObj, request.uriObj.query.toObject())
+  request.hashValue = request.uriObj.hash
 
-  // reset uriObj values for a clean url
-  request.uriObj.query = null
-  request.uriObj.search = null
-  request.uriObj.path = request.uriObj.pathname
+  // reset uriObj query values for a clean url
+  request.uriObj.query.clear()
+  request.uriObj.hash = null
 
   // keep the base url clean of queryString
-  request.url = url.format(request.uriObj)
+  request.url = request.uriObj.toString()
 
-  // update the uri object
-  request.uriObj.query = request.queryObj
-  request.uriObj.search = qs.stringify(request.queryObj)
-
-  if (request.uriObj.search) {
-    request.uriObj.path = request.uriObj.pathname + '?' + request.uriObj.search
+  // update the uri object with query params if any
+  if (Object.keys(request.queryObj).length) {
+    request.uriObj.addQueryParams(QueryParam.unparse(request.queryObj))
   }
 
+  request.hashValue && (request.uriObj.hash = request.hashValue)
+
   // construct a full url
-  request.fullUrl = url.format(request.uriObj)
+  request.fullUrl = request.uriObj.toString()
 
   return request
 }
