@@ -1,5 +1,5 @@
 {
-  "version": "1.16.14",
+  "version": "1.16.15",
   "name": "httpsnippet-fsless",
   "description": "HTTP Request snippet generator for *most* languages without using node-fs",
   "author": "Abhijit Kane, abhijit@getpostman.com",
