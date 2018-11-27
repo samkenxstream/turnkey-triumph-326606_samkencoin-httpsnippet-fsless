@@ -72,9 +72,8 @@ HTTPSnippet.prototype.prepare = function (request) {
 
   // construct headers objects
   if (request.headers && request.headers.length) {
-    // loweCase header keys
     request.headersObj = request.headers.reduceRight(function (headers, header) {
-      headers[header.name.toLowerCase()] = header.value
+      headers[header.name] = header.value
       return headers
     }, {})
   }
