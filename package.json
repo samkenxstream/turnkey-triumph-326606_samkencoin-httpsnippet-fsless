@@ -49,23 +49,16 @@
     "url": "https://github.com/postmanlabs/httpsnippet/issues"
   },
   "scripts": {
-    "test": "standard && mocha --no-timeouts --reporter spec --fgrep 'Request Validation' --invert",
-    "travis": "standard && mocha --no-timeouts --reporter spec",
+    "test": "mocha --no-timeouts --reporter spec --fgrep 'Request Validation' --invert",
+    "travis": "mocha --no-timeouts --reporter spec",
     "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- --fgrep 'Request Validation' --invert",
     "codeclimate": "codeclimate < coverage/lcov.info"
   },
-  "standard": {
-    "ignore": [
-      "**/test/fixtures/**"
-    ]
-  },
   "devDependencies": {
-    "codeclimate-test-reporter": "0.0.4",
     "glob": "^5.0.3",
-    "istanbul": "^0.3.13",
+    "istanbul": "0.4.5",
     "mocha": "^4.0.0",
-    "should": "^5.2.0",
-    "standard": "^3.3.0"
+    "should": "^5.2.0"
   },
   "dependencies": {
     "async": "^0.9.0",
